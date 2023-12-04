@@ -61,7 +61,6 @@ def calculate_cdf_function(distribution, min_val, max_val, likely_val, x):
         return calculate_cdf_triangular(min_val, max_val, likely_val, x)
 
 
-
 def plot_joint_distribution(df, asset_column, significant_index, distribution):
     """
     Plots the joint distribution of the asset value and the most significant index.
@@ -106,6 +105,7 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
                                distribution='triangular', scale_data=False, plot_joint_dist=True):
     """
     Estimates the asset value based on a DataFrame containing min, max, and most likely values for each index.
+    Additionally, returns weights, individual CDFs, and joint CDF.
     Optionally plots the joint distribution with the most significant index.
     """
     # Extracting values from the DataFrame
@@ -141,18 +141,12 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
     # NNLS Regression to find weights
     weights, _ = nnls(index_vals, asset_val)
 
-    # Identify the most significant index based on weights
-    significant_index = df.columns[index_columns[np.argmax(weights)]]
-
     # Calculate the CDFs using the estimated weights
     cdf_values = []
     for i, weight in zip(index_columns, weights):
         min_val, max_val, likely_val = min_vals[i], max_vals[i], likely_vals[i]
-        # Using the midpoint of min and max as the sample point for CDF calculation
-        x = (min_val + max_val) / 2
-        cdf_val = calculate_cdf_beta(min_val, max_val, likely_val,
-                                     x) if distribution == 'beta' else calculate_cdf_triangular(min_val, max_val,
-                                                                                                likely_val, x)
+        x = (min_val + max_val) / 2  # Sample point for CDF calculation
+        cdf_val = calculate_cdf_function(distribution, min_val, max_val, likely_val, x)
         weighted_cdf = cdf_val ** weight
         cdf_values.append(weighted_cdf)
 
@@ -165,9 +159,15 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
 
     # Plot joint distribution if required
     if plot_joint_dist:
-        plot_joint_distribution(df, asset_column, significant_index, distribution)
+        plot_joint_distribution(df, asset_column, df.columns[index_columns[np.argmax(weights)]], distribution)
 
-    return estimated_value
+    # Return the estimated value, weights, CDF values, and joint CDF
+    return {
+        "Estimated Value": estimated_value,
+        "Weights": weights,
+        "Individual CDFs": cdf_values,
+        "Joint CDF": joint_cdf
+    }
 
 
 # Example usage of the function
@@ -179,7 +179,64 @@ data = {
 }
 df = pd.DataFrame(data, index=['min', 'max', 'likely'])
 
-# Run the valuation function and plot joint distribution
-estimated_value = estimate_value_expert_mode(df, asset_column='Value', distribution='triangular')
 
-print(f'The estimated price of the asset is {estimated_value}')
+def square(x):
+    return x ** 2
+
+def square_root(x):
+    return np.sqrt(x)
+
+def logarithm(x):
+    return np.log(x + 1)  # Adding 1 to avoid log(0)
+
+def inverse(x):
+    return 1 / (x + 1e-6)  # Adding a small number to avoid division by zero
+
+# Apply transformations to the DataFrame
+def apply_transformations(df, exclude_column='Value'):
+    transformed_df = df.copy()
+    for col in df.columns:
+        if col != exclude_column:
+            transformed_df[col + '_squared'] = df[col].apply(square)
+            transformed_df[col + '_sqrt'] = df[col].apply(square_root)
+            transformed_df[col + '_log'] = df[col].apply(logarithm)
+    return transformed_df
+
+
+def apply_transformations_to_value(df, transformation):
+    transformed_df = df.copy()
+    if transformation == 'squared':
+        transformed_df['Value'] = df['Value'] ** 2
+    elif transformation == 'sqrt':
+        transformed_df['Value'] = np.sqrt(df['Value'])
+    elif transformation == 'log':
+        transformed_df['Value'] = np.log(df['Value'] + 1)  # Adding 1 to avoid log(0)
+    return transformed_df
+
+
+# Transform the DataFrame
+transformed_df = apply_transformations(df)
+
+# Transformations
+transformations = ['raw', 'squared', 'sqrt', 'log']
+results = {}
+
+# Apply transformations and estimate values
+for transformation in transformations:
+    final_df = apply_transformations_to_value(transformed_df, transformation)
+    estimation_results = estimate_value_expert_mode(final_df, 'Value', distribution='triangular')
+    estimated_value = estimation_results["Estimated Value"]  # Extract the estimated value
+
+    # Reverse the transformation for interpretability
+    if transformation == 'squared':
+        estimated_value = np.sqrt(estimated_value)
+    elif transformation == 'sqrt':
+        estimated_value = estimated_value ** 2
+    elif transformation == 'log':
+        estimated_value = np.exp(estimated_value) - 1
+
+    results[transformation] = estimated_value
+
+# Display results
+for key, value in results.items():
+    print(f"Transformation: {key}, Estimated Value: {value}")
