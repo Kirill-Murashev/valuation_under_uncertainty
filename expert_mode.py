@@ -4,6 +4,8 @@ from scipy.optimize import nnls
 from scipy.stats import beta, triang
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 
 def standardize_values(min_val, max_val, likely_val):
     """
@@ -19,25 +21,20 @@ def calculate_cdf_triangular(min_val, max_val, likely_val, x):
     c = (likely_val - min_val) / (max_val - min_val)
     return triang.cdf(x, c, loc=min_val, scale=max_val - min_val)
 
+
 def estimate_beta_parameters(min_val, max_val, likely_val):
     """
     Estimate the parameters of the beta distribution (alpha and beta)
     based on the min, max, and likely (mode) values.
     """
-    # Standardize values to [0, 1]
     std_likely = (likely_val - min_val) / (max_val - min_val)
-
-    # Estimating alpha and beta using method of moments
-    # Note: This is a simple estimation method and might not be the best fit for all cases
     mean = std_likely
-    variance = ((max_val - likely_val) * (likely_val - min_val)) / ((max_val - min_val)**2 * 12)
-
-    # Solving for alpha and beta
+    variance = ((max_val - likely_val) * (likely_val - min_val)) / ((max_val - min_val) ** 2 * 12)
     temp = mean * (1 - mean) / variance - 1
     alpha = mean * temp
     beta_param = (1 - mean) * temp
-
     return alpha, beta_param
+
 
 def calculate_cdf_beta(min_val, max_val, likely_val, x):
     """
@@ -47,18 +44,69 @@ def calculate_cdf_beta(min_val, max_val, likely_val, x):
     return beta.cdf((x - min_val) / (max_val - min_val), a, b)
 
 
+def calculate_cdf_function(distribution, min_val, max_val, likely_val, x):
+    """
+    Calculates the CDF based on the specified distribution.
+
+    :param distribution: 'triangular' or 'beta'.
+    :param min_val: Minimum value.
+    :param max_val: Maximum value.
+    :param likely_val: Most likely value.
+    :param x: Value to calculate CDF at.
+    :return: CDF value.
+    """
+    if distribution == 'beta':
+        return calculate_cdf_beta(min_val, max_val, likely_val, x)
+    else:
+        return calculate_cdf_triangular(min_val, max_val, likely_val, x)
+
+
+
+def plot_joint_distribution(df, asset_column, significant_index, distribution):
+    """
+    Plots the joint distribution of the asset value and the most significant index.
+
+    :param df: DataFrame with asset and index values.
+    :param asset_column: Name of the column with asset values.
+    :param significant_index: Name of the most significant index.
+    :param distribution: Type of distribution ('triangular' or 'beta').
+    """
+    # Extract data for Value and significant index
+    value_data = df[asset_column]
+    index_data = df[significant_index]
+
+    # Generate value and index ranges for plotting
+    value_range = np.linspace(value_data['min'], value_data['max'], 100)
+    index_range = np.linspace(index_data['min'], index_data['max'], 100)
+
+    # Calculate CDF values for the ranges
+    value_cdf = [calculate_cdf_function(distribution, value_data['min'], value_data['max'], value_data['likely'], v)
+                 for v in value_range]
+    index_cdf = [calculate_cdf_function(distribution, index_data['min'], index_data['max'], index_data['likely'], i)
+                 for i in index_range]
+
+    # Create meshgrid for 3D plot
+    X, Y = np.meshgrid(value_range, index_range)
+    Z = np.outer(value_cdf, index_cdf)
+
+    # Plotting the 3D surface
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(X, Y, Z, cmap='viridis')
+
+    ax.set_xlabel('Value')
+    ax.set_ylabel(significant_index)
+    ax.set_zlabel('Joint CDF')
+
+    plt.title(f'Joint Distribution of Value and {significant_index}')
+    plt.show()
+
+
 def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', likely_row='likely',
-                               distribution='triangular', scale_data=False):
+                               distribution='triangular', scale_data=False, plot_joint_dist=True):
     """
     Estimates the asset value based on a DataFrame containing min, max, and most likely values for each index.
-
-    :param df: DataFrame containing the values.
-    :param asset_column: Name or number of the column containing the asset values.
-    :param min_row: Row label for minimum values.
-    :param max_row: Row label for maximum values.
-    :param likely_row: Row label for most likely values.
-    :param distribution: Type of distribution ('triangular' or 'beta').
-    :return: Estimated value of the asset.
+    Optionally plots the joint distribution with the most significant index.
     """
     # Extracting values from the DataFrame
     min_vals = df.loc[min_row].values
@@ -80,11 +128,9 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
     asset_val = standardized_vals[asset_idx]
     index_vals = np.vstack([standardized_vals[i] for i in index_columns]).T
 
-    # Ensure index_vals is 2D
+    # Ensure index_vals is 2D and asset_val is 1D
     if index_vals.ndim == 1:
         index_vals = index_vals.reshape(-1, 1)
-
-    # Ensure asset_val is 1D
     asset_val = np.array([asset_val])
 
     # Scale the index values if scale_data is True
@@ -94,7 +140,9 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
 
     # NNLS Regression to find weights
     weights, _ = nnls(index_vals, asset_val)
-    print("Weights:", weights)  # Debugging: print the weights
+
+    # Identify the most significant index based on weights
+    significant_index = df.columns[index_columns[np.argmax(weights)]]
 
     # Calculate the CDFs using the estimated weights
     cdf_values = []
@@ -107,75 +155,31 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
                                                                                                 likely_val, x)
         weighted_cdf = cdf_val ** weight
         cdf_values.append(weighted_cdf)
-        print(f"CDF for index {i}: {cdf_val}, Weighted CDF: {weighted_cdf}")  # Debugging: print CDFs
 
     # Combine CDFs to estimate the final value
     joint_cdf = np.prod(cdf_values)
-    print("Joint CDF:", joint_cdf)  # Debugging: print the joint CDF
 
     # Inverse transformation to get the asset value in original scale
     min_asset, max_asset = min_vals[asset_idx], max_vals[asset_idx]
     estimated_value = joint_cdf * (max_asset - min_asset) + min_asset
 
-    # Preparing x_values for CDF calculation
-    x_values = np.linspace(0, 1, 100)
+    # Plot joint distribution if required
+    if plot_joint_dist:
+        plot_joint_distribution(df, asset_column, significant_index, distribution)
 
-    # Updated CDF calculation
-    cdf_values_dict = {}
-    for i, weight in zip(index_columns, weights):
-        min_val, max_val, likely_val = min_vals[i], max_vals[i], likely_vals[i]
-        cdf_values = []
-        for x in x_values:
-            cdf_val = calculate_cdf_beta(min_val, max_val, likely_val,
-                                         x) if distribution == 'beta' else calculate_cdf_triangular(min_val, max_val,
-                                                                                                    likely_val, x)
-            cdf_values.append(cdf_val ** weight)
-        cdf_values_dict[df.columns[i]] = cdf_values
-
-    # Return the estimated value, weights, and CDF values
-    return estimated_value, weights, cdf_values_dict
+    return estimated_value
 
 
-def plot_weights(weights, index_names):
-    plt.bar(index_names, weights)
-    plt.xlabel('Index')
-    plt.ylabel('Weight')
-    plt.title('Weights Assigned to Each Index')
-    plt.show()
-
-
-def plot_cdfs(cdf_values_dict, x_values):
-    for index, cdf_values in cdf_values_dict.items():
-        plt.plot(x_values, cdf_values, label=index)
-    plt.xlabel('Standardized Value')
-    plt.ylabel('CDF Value')
-    plt.title('CDFs of Each Index')
-    plt.legend()
-    plt.show()
-
-
+# Example usage of the function
 data = {
-    'Value': [40000, 800000, 250000],  # Keep the asset values as is
-    'Soil Quality': [20, 38, 22],         # Widen the range and adjust the likely value
-    'Water Availability': [4, 30, 25], # Adjust the likely value closer to the maximum
-    'Accessibility': [5, 13, 7],     # Adjust the likely value closer to the maximum
+    'Value': [40000, 300000, 250000],
+    'Soil Quality': [2, 8, 6],
+    'Water Availability': [3, 15, 8],
+    'Accessibility': [5, 13, 7]
 }
-
 df = pd.DataFrame(data, index=['min', 'max', 'likely'])
 
-# Run the valuation function
-estimated_value, weights, cdf_values_dict = estimate_value_expert_mode(df, asset_column='Value',
-                                                                       distribution='triangular')
+# Run the valuation function and plot joint distribution
+estimated_value = estimate_value_expert_mode(df, asset_column='Value', distribution='triangular')
 
-# Plotting
-index_names = [col for col in df.columns if col != 'Value']
-plot_weights(weights, index_names)
-
-# Generating x values for CDF plots (standardized scale)
-x_values = np.linspace(0, 1, 100)
-plot_cdfs(cdf_values_dict, x_values)
-
-print(f"Estimated Asset Value: ${estimated_value:.2f}")
-
-
-
+print(f'The estimated price of the asset is {estimated_value}')
