@@ -170,16 +170,6 @@ def estimate_value_expert_mode(df, asset_column, min_row='min', max_row='max', l
     }
 
 
-# Example usage of the function
-data = {
-    'Value': [40000, 300000, 250000],
-    'Soil Quality': [2, 8, 6],
-    'Water Availability': [3, 15, 8],
-    'Accessibility': [5, 13, 7]
-}
-df = pd.DataFrame(data, index=['min', 'max', 'likely'])
-
-
 def square(x):
     return x ** 2
 
@@ -214,12 +204,21 @@ def apply_transformations_to_value(df, transformation):
     return transformed_df
 
 
+# Example usage of the function
+data = {
+    'Value': [40000, 300000, 250000],
+    'Soil Quality': [2, 8, 6],
+    'Water Availability': [3, 15, 8],
+    'Accessibility': [5, 13, 7]
+}
+df = pd.DataFrame(data, index=['min', 'max', 'likely'])
+
 # Transform the DataFrame
 transformed_df = apply_transformations(df)
 
 # Transformations
 transformations = ['raw', 'squared', 'sqrt', 'log']
-results = {}
+estimated_values = []
 
 # Apply transformations and estimate values
 for transformation in transformations:
@@ -235,8 +234,9 @@ for transformation in transformations:
     elif transformation == 'log':
         estimated_value = np.exp(estimated_value) - 1
 
-    results[transformation] = estimated_value
+    estimated_values.append(estimated_value)
 
-# Display results
-for key, value in results.items():
-    print(f"Transformation: {key}, Estimated Value: {value}")
+# Calculate the mean of the estimated values
+mean_estimated_value = np.mean(estimated_values)
+print(f"The mean estimated value: {round(mean_estimated_value, 2)}")
+
