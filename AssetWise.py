@@ -6,7 +6,8 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
-
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
 def load_data(file_path):
     """
@@ -270,6 +271,48 @@ def main(file_path):
 
 
 # Example file path
-file_path = '/home/kaarlahti/PycharmProjects/valuation_uncertainty/data_template.xlsx'
-main(file_path)
+# file_path = '/home/kaarlahti/PycharmProjects/valuation_uncertainty/data_template.xlsx'
+# main(file_path)
 
+def select_file():
+    """
+    Prompts the user to select a file using a file dialog.
+
+    Returns:
+        None
+    """
+    file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx"), ("Excel Files (older)", "*.xls")])
+    if file_path:
+        file_entry.delete(0, tk.END)
+        file_entry.insert(0, file_path)
+        run_button.config(state=tk.NORMAL)
+
+def run_script():
+    file_path = file_entry.get()
+    if file_path:
+        # Here you would call your main script function
+        try:
+            # Assuming your main function accepts the file path
+            main(file_path)
+            messagebox.showinfo("Success", "Process completed successfully")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+    else:
+        messagebox.showwarning("Warning", "Please select a file first")
+
+# Create the main window
+root = tk.Tk()
+root.title("AssetWise Valuation Tool")
+
+# Create and place widgets
+file_entry = tk.Entry(root, width=50)
+file_entry.grid(row=0, column=1, padx=10, pady=10)
+
+select_button = tk.Button(root, text="Select File", command=select_file)
+select_button.grid(row=0, column=2, padx=10, pady=10)
+
+run_button = tk.Button(root, text="Run", command=run_script, state=tk.DISABLED)
+run_button.grid(row=1, column=1, padx=10, pady=10)
+
+# Start the GUI event loop
+root.mainloop()
