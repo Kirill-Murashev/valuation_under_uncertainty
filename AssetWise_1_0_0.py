@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, PhotoImage
+
 
 def load_data(file_path):
     """
@@ -98,13 +99,13 @@ def plot_joint_distribution(df, asset_column, significant_index, distribution):
                  for i in index_range]
 
     # Create meshgrid for 3D plot
-    X, Y = np.meshgrid(value_range, index_range)
-    Z = np.outer(value_cdf, index_cdf)
+    x, y = np.meshgrid(value_range, index_range)
+    z = np.outer(value_cdf, index_cdf)
 
     # Plotting the 3D surface
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, Y, Z, cmap='viridis')
+    ax.plot_surface(x, y, z, cmap='viridis')
 
     ax.set_xlabel('Value')
     ax.set_ylabel(significant_index)
@@ -120,7 +121,6 @@ def save_plots(df, transformation, folder_path):
     """
     fig = plot_joint_distribution(df, 'Value', df.columns[1], 'triangular')
     fig.savefig(os.path.join(folder_path, f'plot_{transformation}.png'))
-
 
 
 def estimate_value_expert_mode(df, asset_column, min_row='minimum', max_row='maximum', likely_row='likely',
@@ -193,19 +193,72 @@ def estimate_value_expert_mode(df, asset_column, min_row='minimum', max_row='max
 
 
 def square(x):
+    """
+    Calculate the square of a given number.
+
+    Parameters:
+        x (int or float): The number to be squared.
+
+    Returns:
+        int or float: The square of the given number.
+    """
     return x ** 2
 
+
 def square_root(x):
+    """
+    Calculates the square root of a given number.
+
+    Parameters:
+        x (float): The number to calculate the square root for.
+
+    Returns:
+        float: The square root of the given number.
+    """
     return np.sqrt(x)
 
+
 def logarithm(x):
+    """
+    Calculate the natural logarithm of a number.
+
+    Parameters:
+        x (float): The number to calculate the logarithm of.
+
+    Returns:
+        float: The natural logarithm of the input number plus 1, to avoid log(0).
+    """
     return np.log(x + 1)  # Adding 1 to avoid log(0)
 
+
 def inverse(x):
+    """
+    Calculate the inverse of a number.
+
+    Parameters:
+        x (float): The number to calculate the inverse of.
+
+    Returns:
+        float: The inverse of the input number.
+
+    Notes:
+        Adding a small number to the input to avoid division by zero.
+    """
     return 1 / (x + 1e-6)  # Adding a small number to avoid division by zero
+
 
 # Apply transformations to the DataFrame
 def apply_transformations(df, exclude_column='Value'):
+    """
+    Apply transformations to a DataFrame.
+
+    Parameters:
+        df (DataFrame): The DataFrame to apply transformations to.
+        exclude_column (str, optional): The column to exclude from transformations. Defaults to 'Value'.
+
+    Returns:
+        DataFrame: The transformed DataFrame.
+    """
     transformed_df = df.copy()
     for col in df.columns:
         if col != exclude_column:
@@ -287,7 +340,26 @@ def select_file():
         file_entry.insert(0, file_path)
         run_button.config(state=tk.NORMAL)
 
+
 def run_script():
+    """
+    Runs a script based on the file path provided.
+
+    Parameters:
+        None.
+
+    Returns:
+        None.
+
+    Raises:
+        FileNotFoundError: If the file path provided does not exist.
+        Exception: If an error occurs while running the script.
+
+    This function prompts the user to enter a file path.
+    If a file path is provided, the function calls the main script function passing the file path as an argument.
+    If the script runs successfully, a success message is displayed. If an error occurs, an error message is displayed.
+    If no file path is provided, a warning message will appear.
+    """
     file_path = file_entry.get()
     if file_path:
         # Here you would call your main script function
@@ -300,9 +372,51 @@ def run_script():
     else:
         messagebox.showwarning("Warning", "Please select a file first")
 
+
+def show_info():
+    info_window = tk.Toplevel(root)
+    info_window.title("About AssetWise 1.0.0")
+
+    info_text = """
+    AssetWise 1.0.0
+    Valuation Tool under Uncertainty
+
+    Copyright 2023 Sovconsult DOO
+
+    For support, contact us at:
+    Facebook: https://www.facebook.com/groups/1977067932456703
+    Telegram: https://t.me/AIinValuation
+
+    Legal Information:
+    [Copyright [2023] [Sovconsult DOO]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.]
+    """
+    tk.Label(info_window, text=info_text, justify=tk.LEFT, padx=10, pady=10).pack()
+
+    close_button = tk.Button(info_window, text="Close", command=info_window.destroy)
+    close_button.pack(pady=10)
+
+
 # Create the main window
 root = tk.Tk()
-root.title("AssetWise Valuation Tool")
+root.title("AssetWise 1.0.0: Valuation Tool Under Uncertainty")
+
+# Load the .png file as a PhotoImage
+icon = PhotoImage(file='/home/kaarlahti/PycharmProjects/valuation_uncertainty/logo.png')
+
+# Set the icon
+root.iconphoto(True, icon)
 
 # Create and place widgets
 file_entry = tk.Entry(root, width=50)
@@ -310,6 +424,9 @@ file_entry.grid(row=0, column=1, padx=10, pady=10)
 
 select_button = tk.Button(root, text="Select File", command=select_file)
 select_button.grid(row=0, column=2, padx=10, pady=10)
+
+info_button = tk.Button(root, text="About", command=show_info)
+info_button.grid(row=2, column=1, padx=10, pady=10)
 
 run_button = tk.Button(root, text="Run", command=run_script, state=tk.DISABLED)
 run_button.grid(row=1, column=1, padx=10, pady=10)
