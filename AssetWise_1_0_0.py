@@ -323,10 +323,6 @@ def main(file_path):
         print(f"An error occurred: {e}")
 
 
-# Example file path
-# file_path = '/home/kaarlahti/PycharmProjects/valuation_uncertainty/data_template.xlsx'
-# main(file_path)
-
 def select_file():
     """
     Prompts the user to select a file using a file dialog.
