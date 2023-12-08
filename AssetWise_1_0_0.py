@@ -1,3 +1,13 @@
+'''
+Cyrill A. Murashev, Sovconsult DOO, Montenegro, Herzeg Novi.
+This code implements the method described in the paper
+"A generalized method for valuing agricultural farms under uncertainty".
+C. García, J. García, M.M. Lópezc, R. Salmerón
+https://www.sci-hub.ru/10.1016/j.landusepol.2017.04.008.
+This version implements the "expert mode" of the method, in which the appraiser uses his judgment about
+on the minimum, maximum and probable values of the parameters, including the value.
+'''
+
 import pandas as pd
 import numpy as np
 from scipy.optimize import nnls
