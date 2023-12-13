@@ -16,24 +16,15 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
-import logging
 import tkinter as tk
 from tkinter import filedialog, messagebox, PhotoImage
 
-# Configure logging
-log_file_path = os.path.join(os.getcwd(), 'AssetWise.log')
-logging.basicConfig(filename=log_file_path, level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-# Example of using logging in your functions
 def load_data(file_path):
-    try:
-        logging.info(f"Loading data from file: {file_path}")
-        return pd.read_excel(file_path, index_col=0)
-    except Exception as e:
-        logging.error(f"Error loading data from file: {file_path}, Error: {e}")
-        raise
+    """
+    Loads data from an XLSX file into a DataFrame.
+    """
+    return pd.read_excel(file_path, index_col=0)
 
 
 def standardize_values(min_val, max_val, likely_val):
@@ -303,7 +294,6 @@ def main(file_path):
     Main function to process the input file and save the output.
     """
     try:
-        logging.info("Processing started.")
         df = load_data(file_path)
         transformed_df = apply_transformations(df)
 
@@ -326,7 +316,7 @@ def main(file_path):
             estimated_values.append(estimated_value)
 
         mean_estimated_value = np.mean(estimated_values)
-        logging.info(f"The mean estimated value: {round(mean_estimated_value, 2)}")
+        print(f"The mean estimated value: {round(mean_estimated_value, 2)}")
 
         # Save results to file
         result_df = pd.DataFrame({'Transformation': transformations + ['Final outcome'],
@@ -334,14 +324,12 @@ def main(file_path):
         result_df.to_excel(os.path.join(os.path.dirname(file_path), 'AssetWise_output.xlsx'))
 
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
         print(f"An error occurred: {e}")
 
         # Save results to file
         result_df = pd.DataFrame({'Transformation': transformations, 'Estimated Value': estimated_values})
         result_df.to_excel(os.path.join(os.path.dirname(file_path), 'AssetWise_output.xlsx'))
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
         print(f"An error occurred: {e}")
 
 
@@ -426,16 +414,9 @@ limitations under the License.]
     close_button.pack(pady=10)
 
 
-def on_close():
-    # Perform any cleanup, thread shutdown, or other necessary actions
-    logging.info("Closing application.")
-    root.destroy()
-
-
 # Create the main window
 root = tk.Tk()
 root.title("AssetWise 1.0.0: Valuation Tool Under Uncertainty")
-root.protocol("WM_DELETE_WINDOW", on_close)
 
 # Load the .png file as a PhotoImage
 icon = PhotoImage(file='/home/kaarlahti/PycharmProjects/valuation_uncertainty/logo.png')
