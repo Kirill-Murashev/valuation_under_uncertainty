@@ -1,4 +1,4 @@
-'''
+"""
 Cyrill A. Murashev, Sovconsult DOO, Montenegro, Herzeg Novi.
 This code implements the method described in the paper
 "A generalized method for valuing agricultural farms under uncertainty".
@@ -6,7 +6,7 @@ C. García, J. García, M.M. Lópezc, R. Salmerón
 https://www.sci-hub.ru/10.1016/j.landusepol.2017.04.008.
 This version implements the "expert mode" of the method, in which the appraiser uses his judgment about
 on the minimum, maximum and probable values of the parameters, including the value.
-'''
+"""
 
 import pandas as pd
 import numpy as np
@@ -18,6 +18,17 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, PhotoImage
+import logging
+from PIL import Image, ImageTk
+
+# Configure logging
+log_file_path = os.path.join(os.getcwd(), 'AssetWise.log')
+logging.basicConfig(filename=log_file_path, level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Set a higher logging level for matplotlib and scipy
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('scipy').setLevel(logging.WARNING)
 
 
 def load_data(file_path):
@@ -293,18 +304,22 @@ def main(file_path):
     """
     Main function to process the input file and save the output.
     """
-    try:
-        df = load_data(file_path)
-        transformed_df = apply_transformations(df)
+    transformations = ['raw', 'squared', 'sqrt', 'log']
+    estimated_values = []
 
-        transformations = ['raw', 'squared', 'sqrt', 'log']
-        estimated_values = []
+    try:
+        logging.info("Processing started.")
+        df = load_data(file_path)
+        logging.info(f"Data loaded with shape: {df.shape}")
+        transformed_df = apply_transformations(df)
+        logging.info(f"Data transformed with shape: {transformed_df.shape}")
 
         for transformation in transformations:
             final_df = apply_transformations_to_value(transformed_df, transformation)
             estimation_results = estimate_value_expert_mode(final_df, 'Value', distribution='triangular')
             estimated_value = estimation_results["Estimated Value"]
 
+            # Adjusting the estimated value based on the transformation
             if transformation == 'squared':
                 estimated_value = np.sqrt(estimated_value)
             elif transformation == 'sqrt':
@@ -312,25 +327,27 @@ def main(file_path):
             elif transformation == 'log':
                 estimated_value = np.exp(estimated_value) - 1
 
-            save_plots(final_df, transformation, os.path.dirname(file_path))
             estimated_values.append(estimated_value)
 
+            # Save plots for each transformation
+            output_folder = os.path.dirname(file_path)
+            save_plots(final_df, transformation, output_folder)
+
         mean_estimated_value = np.mean(estimated_values)
-        print(f"The mean estimated value: {round(mean_estimated_value, 2)}")
+        logging.info(f"The mean estimated value: {round(mean_estimated_value, 2)}")
 
         # Save results to file
+        output_file = os.path.join(output_folder, 'AssetWise_output.xlsx')
         result_df = pd.DataFrame({'Transformation': transformations + ['Final outcome'],
                                   'Estimated Value': estimated_values + [mean_estimated_value]})
-        result_df.to_excel(os.path.join(os.path.dirname(file_path), 'AssetWise_output.xlsx'))
+        result_df.to_excel(output_file)
+        logging.info("Results saved successfully.")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
 
-        # Save results to file
-        result_df = pd.DataFrame({'Transformation': transformations, 'Estimated Value': estimated_values})
-        result_df.to_excel(os.path.join(os.path.dirname(file_path), 'AssetWise_output.xlsx'))
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    finally:
+        logging.info("Process completed.")
 
 
 def select_file():
@@ -387,14 +404,14 @@ def show_info():
     AssetWise 1.0.0
     Valuation Tool under Uncertainty
 
-    Copyright 2023 Sovconsult DOO
+    Copyright 2024 Sovconsult DOO
 
     For support, contact us at:
     Facebook: https://www.facebook.com/groups/1977067932456703
     Telegram: https://t.me/AIinValuation
 
     Legal Information:
-    [Copyright [2023] [Sovconsult DOO]
+    [Copyright [2024] [Sovconsult DOO]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
