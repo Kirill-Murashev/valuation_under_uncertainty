@@ -1,0 +1,379 @@
+\documentclass{beamer}
+\usetheme{Warsaw}
+\usepackage[backend=biber, style=authoryear, citestyle=numeric]{biblatex}
+\addbibresource{bib/Mathstat.bib}
+\addbibresource{bib/ValuationStandards.bib}
+\usepackage{hyperref}
+
+
+\title{AssetWise 1.0.0 (20231213): Valuation Tool Under Uncertainty}
+\author{\href{https://github.com/Kirill-Murashev}{Cyrill A. Murashev}}
+\institute{\href{https//sovconsult.tech}{Sovconsult DOO}, \href{https://en.wikipedia.org/wiki/Herceg_Novi}{Herzeg Novi}}
+
+\titlegraphic{\includegraphics[width=3cm]{img/logo.png}}
+
+\begin{document}
+	
+\begin{frame}[plain]
+    \maketitle
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Table of Contents}
+	\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\subsection{The State of Valuation in the Face of Uncertainty}
+
+\begin{frame}{Understanding Uncertainty in Valuation}
+	\textbf{Underlying challenge:}
+	
+	In the realm of asset valuation, one pervasive challenge is the inherent uncertainty stemming from data limitations. This uncertainty is not just a matter of insufficient data quantity, but also concerns the quality and relevance of available information. As valuers, we often grapple with incomplete, outdated, or non-specific data sets, which can significantly impact the accuracy and reliability of valuation outcomes. This uncertainty necessitates innovative approaches and methodologies that can intelligently interpret available data and make informed estimates, even in the face of incomplete information. AssetWise~1.0.0 embodies such an innovative approach, offering a robust solution to navigate and mitigate the uncertainties inherent in asset valuation.
+\end{frame}
+
+\begin{frame}{Compliance with IFRS~13 Guidelines in Limited Information Scenarios}
+	Navigating the IFRS~13 Compliance Challenge:
+	
+	The International Financial Reporting Standard 13 "Fair Value Measurement" (IFRS~13)~\cite{IFRS-13}, particularly in Paragraph~3, emphasize a critical balance in valuation processes: maximizing the use of observable, market-based information while minimizing reliance on unobservable inputs. This principle aims to ensure transparency and accuracy in asset valuations. However, in practical scenarios, especially in niche markets or unique assets, sufficient market data may not be readily available, posing a significant challenge to strict adherence to these IFRS~13 guidelines.	
+\end{frame}
+
+\begin{frame}{Compliance with IFRS~13 Guidelines in Limited Information Scenarios}
+	AssetWise 1.0.0 emerges as a pivotal tool in such situations. It is designed to navigate these complexities by utilizing advanced estimation methods that intelligently leverage limited data. While direct market-based valuation might be constrained due to data scarcity, AssetWise enables a level of compliance with IFRS~13 Standard by making the best possible use of the available information, however limited it may be. This not only aligns with the IFRS~13 mandate but also enhances the reliability and credibility of valuations under uncertain conditions.
+\end{frame}
+
+\begin{frame}{Data-Driven Approach in Valuation}
+	\begin{itemize}
+		\item Emphasizes the use of extensive datasets to inform valuation models.
+		\item Relies on quantitative analysis, reducing subjective judgment.
+		\item Incorporates a wide range of market data, including historical transactions, current market trends, and predictive analytics.
+		\item Enhances accuracy and reliability by leveraging big data and machine learning techniques.
+		\item Ideal for markets with abundant data but requires careful handling of data quality and relevance.
+		\item Balances between market-based evidence and statistical rigor, ensuring compliance with industry standards.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Evidence-Based Approach in Valuation}
+	\begin{itemize}
+		\item Prioritizes the use of empirical evidence to support valuation conclusions.
+		\item Integrates both quantitative data and qualitative insights.
+		\item Employs market data, comparable transactions, and expert opinions to form a comprehensive valuation perspective.
+		\item Adapts to varying levels of available data, making it suitable for diverse market conditions.
+		\item Balances empirical data with professional judgment, recognizing the importance of context in valuation.
+		\item Aims for transparency and replicability, ensuring that valuation decisions are well-grounded and justifiable.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{AssetWise --- Bridging Evidence-Based and Data-Driven Approaches}
+	AssetWise represents a novel fusion of the Evidence-Based and Data-Driven approaches in property valuation. At its core, AssetWise embraces the principles of the Evidence-Based Approach by heavily relying on the appraiser's expert judgment. Appraisers are empowered to input their informed estimations on a range of parameters, thereby tailoring the valuation process to the unique characteristics of each asset.
+\end{frame}
+
+\begin{frame}{AssetWise --- Bridging Evidence-Based and Data-Driven Approaches}
+	Simultaneously, AssetWise doesn't shy away from leveraging the power of data. It employs scientific methods to analyze and interpret the available data, striving to be as data-driven as possible within the constraints of limited market information. This dual approach allows AssetWise to maximize the use of observable data, in line with IFRS guidelines, while also acknowledging and effectively integrating the appraiser's valuable insights where data is scarce.
+\end{frame}
+
+\begin{frame}{AssetWise --- Bridging Evidence-Based and Data-Driven Approaches}
+	In essence, AssetWise is predominantly an Evidence-Based tool, augmented with data-driven capabilities. This combination ensures a robust, flexible, and comprehensive valuation method, adaptable to various scenarios where market data might be limited, but expert judgment is abundant and reliable.
+\end{frame}
+
+\begin{frame}{AssetWise --- User-Friendly and Inclusive Valuation Tool}
+	AssetWise stands out as a uniquely inclusive and appraiser-friendly tool in the realm of property valuation. One of its key attributes is that it requires no coding skills from the appraiser. This design choice ensures that AssetWise is accessible to a wide range of professionals, regardless of their technical background.
+	
+	The tool's intuitive interface and straightforward operation mean that appraisers can focus on applying their expertise in valuation without the need to navigate complex programming languages or software development concepts. This approach not only simplifies the valuation process but also opens the door for a broader spectrum of valuation professionals to utilize advanced analytical techniques in their assessments.
+\end{frame}
+
+\begin{frame}{AssetWise --- User-Friendly and Inclusive Valuation Tool}
+    By eliminating the barrier of coding knowledge, AssetWise democratizes access to sophisticated valuation methodologies. It empowers appraisers to harness the power of advanced algorithms and data analysis with ease, ensuring that high-quality, data-informed valuations are not the exclusive domain of those with programming skills.
+
+    In conclusion, AssetWise is more than just a valuation tool --- it's a step towards making advanced valuation methodologies more inclusive and user-friendly, aligning with the modern appraiser's needs and capabilities.
+\end{frame}
+
+\subsection{Quick Start}
+
+\begin{frame}{Quick Start}
+	The authors of the article, which is the basis of AssetWise, mention farmland valuation as a key area of implementation of this method. But we will use the scope of machinery and equipment valuation. In the valuation of typical mass-produced machinery and equipment, there is no problem with the data for their valuation. However, a large number of types of equipment have a large number of modifications, often designed to meet the needs of a particular customer. In such cases, we are often unable to obtain sufficient transaction or bid data. Sometimes we have no data at all, sometimes we have sparse data that does not allow us to build a pricing model or at least make some adjustments. 
+\end{frame}
+
+\begin{frame}{Data example}
+	\frametitle{Data example}
+	
+	\begin{table}[h!]
+		\centering
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			{\tiny Value (USD)} & {\tiny Engine Power (kW)} & {\tiny Main Gear Diameter (mm)} & {\tiny Maximum Carriage Travel (mm)} \\
+			\hline
+			NaN & NaN & 100 & 1500 \\
+			NaN & 80 & NaN & 1500 \\
+			12000 & 130 & 150 & NaN \\
+			9500 & NaN & NaN & NaN \\
+			NaN & 80 & 100 & 1200 \\
+			NaN & 50 & 100 & NaN \\
+			14000 & NaN & 150 & NaN \\
+			13000 & 210 & 150 & 1700 \\
+			\hline
+		\end{tabular}
+		\caption{Data example in machinery valuation}
+	\end{table}
+\end{frame}
+
+\begin{frame}{Switch to individual variables}
+	As we can see, it's impossible to make a valuation using traditional comparative techniques. Someone might say that it is a case of abandoning valuation. We have only one observation with complete data. However, we have a way to overcome the data limitation. Let's get away from the problem of estimating value by analyzing its relationship with some technical characteristics. Instead, let us consider each column as a separate data set. We have no limits to treat each column (variable) as a variational series, i.e., as a non-decreasing sequence. In this case, we can say that each variable has its own distribution.
+\end{frame}
+
+\begin{frame}{Distribution treatment}
+	When we talk about distribution in the context of econometrics, we should understand the following:
+	\begin{itemize}
+		\item we have an empirical distribution;
+		\item we want to consider it as one of the theoretical distributions.
+	\end{itemize}
+    On the one hand we only have what we have, on the other hand we want to be able to use techniques that have been developed for the specific theoretical distribution. If we consider our distribution as one of the known ones, we can use, among others, the existing formulas of \textbf{probability density function (PDF)} \cite{wiki:PDF} and \textbf{cumulative density function (CDF)} \cite{wiki:CDF}.    
+    \end{frame}
+
+\begin{frame}{Choice of theoretical distribution}
+	It is important to understand that correlating empirical and theoretical distributions is a rather subjective process. The researcher decides which theoretical distribution to use as a benchmark and how to test the hypothesis that the empirical distribution matches the theoretical law. AssetWise uses the triangular distribution \cite{wiki:triangular_dist} as the default theoretical distribution for all variables. The triangular distribution is typically used as a subjective description of a population for which there is only limited sample data, and especially in cases where the relationship between variables is known but data is scarce (possibly because of the high cost of collection). It is based on a knowledge of the minimum and maximum and an "inspired guess" as to the modal value. For these reasons, the triangle distribution has been called a "lack of knowledge" distribution.
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Triangular Distribution}
+	\frametitle{Understanding the Triangular Distribution}
+	
+	\begin{itemize}
+		\item The \textbf{triangular distribution} is a continuous probability distribution with a probability density function shaped like a triangle.
+		\item Defined by three parameters: a minimum value \( a \), a maximum value \( b \), and a peak value \( c \) which lies between \( a \) and \( b \).
+		\item The probability density function (PDF) is given by:
+		\[
+		f(x) = \begin{cases}
+			0 & \text{for } x < a, \\ 
+			\frac{2(x-a)}{(b-a)(c-a)} & \text{for } a \leq x < c, \\
+			\frac{2}{b-a} & \text{for } x = c,\\
+			\frac{2(b-x)}{(b-a)(b-c)} & \text{for } c \leq x \leq b, \\
+			0 & \text{for } b < x.
+		\end{cases}
+		\]
+		\item The cumulative density function (CDF) is given by:
+		\[
+		F(x) = \begin{cases} 
+			0 & \text{for } x \leq a, \\
+			\frac{(x-a)^2}{(b-a)(c-a)} & \text{for } a < x \leq c, \\
+			1 - \frac{(b-x)^2}{(b-a)(b-c)} & \text{for } c < x < b, \\
+			1 & \text{for } b \leq x.
+		\end{cases}
+		\]
+		\item It's used in scenarios with limited data, providing a simple model for the probability distribution.
+		\item The triangular distribution is particularly useful in AssetWise for modeling estimates based on the appraiser's experience and judgment.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Construction of Joint Distribution in AssetWise}
+	\begin{itemize}
+		\item AssetWise constructs a joint distribution of asset values and significant indices using individual probability distributions.
+		\item Individual distributions are combined using the concept of copulas, allowing for modeling dependencies between different variables.
+		\item The joint distribution represents the combined uncertainty and interdependence of asset values and significant indices.
+		\item This approach allows for a more comprehensive assessment of the asset value, accounting for both individual and systemic uncertainties.
+		\item The final estimation is derived from the joint distribution, providing a value that incorporates all considered factors.
+	\end{itemize}
+\end{frame}
+
+\section{Scientific basis}
+
+\begin{frame}{Scientific Foundation of AssetWise}
+	At the core of AssetWise's functionality lies a robust scientific foundation, grounded in contemporary research. The tool's theoretical base is primarily derived from the influential study titled \href{https://www.sci-hub.ru/10.1016/j.landusepol.2017.04.008}{"A Generalized Method for Valuing Agricultural Farms Under Uncertainty"}~\cite{Garc_a_2017}. This seminal work, a contribution of Spanish scientists, has been pivotal in shaping the methodologies implemented in AssetWise.
+	
+	Published in the journal "Land Use Policy", the study offers a comprehensive approach to valuation under conditions of uncertainty, particularly in the context of agricultural farms. It presents a nuanced method that accounts for the various factors and uncertainties inherent in agricultural valuation, providing a systematic framework for assessing value.
+\end{frame}
+
+\begin{frame}{Scientific Foundation of AssetWise}
+	AssetWise adapts and extends these principles to a broader range of valuation contexts, not just limited to agriculture. By integrating the study's methodologies, AssetWise offers a scientifically sound and rigorous approach to property valuation. This approach is particularly effective in scenarios where data is scarce or uncertainty is high, ensuring that valuations are grounded in a solid scientific framework.
+	
+	The adoption of this research underscores AssetWise's commitment to delivering a tool that is not only practical but also deeply rooted in academic research and scientific rigor. It bridges the gap between theoretical research and practical application, bringing advanced valuation methods into the hands of appraisers and valuation professionals.
+\end{frame}
+
+\subsection{Brief Retelling of the Article}
+
+\begin{frame}[allowframebreaks]{Summary of the key points we need to consider}
+	\begin{itemize}
+		\item \textbf{Market Opacity and Expert Estimates}: traditional valuation in the farm market, as well as the valuation of machines and equipment, relies heavily on expert estimates due to the lack of transparent transaction prices.
+		\item \textbf{Two Cumulative Distribution Functions (VMTCDF)}: This method, initially proposed by \href{http://refhub.elsevier.com/S0264-8377(17)30382-4/sbref0020}{Ballestero in 1971}~\cite{Ballestero_1971}, improves upon traditional methods by using two cumulative distribution functions. It's aimed at estimating the market value of an asset by establishing a proportional relationship between the asset and an external variable.
+		\item \textbf{Extension to Multiple External Variables (k indexes)}: the paper extends the original method to consider multiple external variables. This is particularly relevant for non-market goods or markets with limited information, like agricultural land or machines and equipment.
+	\end{itemize}
+\end{frame}
+
+\subsection{Key Concepts from the Methodology Section}
+
+\begin{frame}[allowframebreaks]{Key Concepts from the Methodology Section}
+	\begin{itemize}
+        \item \textbf{Relationship Between Quality Index and Market Value:} the method considers a quality index \(I\) of the asset and its market value \(V\). There's a function \(\Phi\) relating these two variables, with \(V=\Phi(I)\), where \(\Phi\) is a strictly increasing function in the interval \([I_{1}, I_{2}]\).
+        \begin{equation}
+        	F(\upsilon) = P(V < \upsilon) = P(\Phi(I) \leq \upsilon) = P(I \leq \Phi^{-1}(\upsilon)) = G(\Phi^{-1}(\upsilon))
+        \end{equation}
+        or equivalently,
+        \begin{equation}
+        	G(i) = P(I \leq i) = P(\Phi(I) \leq \Phi(i)) = P(V \leq \Phi(i)) = F(\Phi(i))
+        \end{equation}
+        then \(F\) is invertible over the same interval.
+        \item \textbf{Strictly increasing functions:} \(F\) is strictly increasing over the interval \(\Phi(I_{1}), \Phi(I_{2}))\) then F is invertible over the same interval. It is possible to describe a bijection \(\Phi: (I_{1}, I_{2}) \rightarrow \Phi(I_{1}; \Phi(I_{2}))\) defined by
+        \begin{equation}
+        	\Phi(i) = F^{-1}(G(i))
+        \end{equation}
+        which converts the value of an index into a market value for the asset. Then, if the index is \(I_{0}\) then the market value of the asset is obtained as
+        \begin{equation}
+        	V_{0} = \Phi(I_{0}) = F^{-1} (G(I_{0}))
+        \end{equation}
+       	\item \textbf{Cumulative Distribution Functions (CDFs):} The CDF of the index \(I\) is given as \(G(i)\), and the CDF of the market value \(V\) is \(F(\upsilon)\). The relationship between these two functions is established through the function \(\Phi\).
+       	\item \textbf{Transformation of Variables:} there's a focus on working with standardized variables, where the transformation \( t = \frac{x - a}{b - a} \) is applied, standardizing the data to a \( [0 \ldots 1] \) scale, with \( M = \frac{\text{likely} - \text{minimum}}{\text{maximum} - \text{minimum}} \) being the standardized most likely value.
+       	\item \textbf{Joint Distribution for Multiple Variables:} the paper proposes extending the methodology to construct a joint distribution function for all explanatory variables, using a weighted cumulative distribution function based on the relevance \(p_{i}\) of every index.
+       	\item \textbf{Regression for Weights Estimation:} a regression is proposed to estimate the weights \(p_{i}\) of the indexes, which will then be used to construct the joint distribution function.
+       	\item \textbf{VMTCDF Extension:} finally, the extension of VMTCDF is applied to estimate the value of the asset using the joint distribution function.
+       	\item \textbf{Weighted Growth Rate:} the concept revolves around weighting the growth rate of the probability density function (pdf, denoted as \(f\)) and the cumulative distribution function (CDF, denoted as \(F\)) of random variables.
+       	\begin{equation}
+       		\frac{f}{F} = \alpha \frac{f_{1}}{F_{1}} + (1 - \alpha) \frac{f_{2}}{F_{2}}
+       	\end{equation}
+       	The formula provided below is an integration of these weighted growth rates between zero and \(x\).
+       	\begin{equation}
+       		\ln F = \alpha \ln F_{1} + (1 - \alpha)F_{2}
+       	\end{equation}
+       	\item \textbf{Logarithmic Transformations for Weights:} the method involves using logarithmic transformations to determine direct and inverse weights for the CDFs of the assets and indexes.
+       	\begin{equation}
+       		\ln F_{(p_{1} \cdot p_{2})} = \frac{p_{1} \ln F_{1}(x_{1}) + p_{2} \ln F_{2}(x_{2})}{p_{1} + p_{2}}
+       	\end{equation}
+       \begin{equation}
+           \ln F_{(p_{1} \cdot p_{2})} = \frac{\frac{1}{p_{1}} \ln F_{1}(x_{1}) + \frac{1}{p_{2}} \ln F_{2}(x_{2})}{\frac{1}{p_{1}} + \frac{1}{p_{2}}}
+       \end{equation}
+       	\item \textbf{Construction of WCDF for Multi-Dimensional Variables:} the WCDF for a k-dimensional random variable is defined as the product of individual distributions, raised to a power \(p_{i}\), with the constraint that the sum of \(p_{i}\) values equals 1. That is \(F_{p}:\Re^{k} \rightarrow [0,1]\).
+       	\begin{equation}
+       		\overrightarrow{X} \rightarrow F_{\vec{p}}(\overrightarrow{X}) = F_{\vec{p}}(X_{1}, X_{2}, \ldots, X_{k}) = [F_{1}(X_{1})]^{p_1} \times \ldots \times [F_{k}(X_{k})]^{p_k},
+       	\end{equation}
+        where \[\vec{p} = p_{1} \cdot p_{2}, \ldots, p_{k}\] and \(\sum_{i=1}^{k} p_{i} = 1\).
+       	\item \textbf{Joint Distribution Function:} a joint distribution function for the indexes is constructed, which is a product of the individual CDFs raised to their respective weights \(p_{i}\).
+       	\item \textbf{Linear Specification of Parameters:} by taking logarithms, a linear specification for the parameters is obtained, facilitating the use of linear models for estimation.
+       	\small
+       	\begin{equation}
+       		G(Y) = F_{p} (X_{1}, X_{2}, \ldots, X_{k}) = [F_{1}(X_{1})]^{p_1} \times [F_{2}(X_{2})]^{p_2} \times \ldots \times [F_{k}(X_{k})]^{p_k}
+       	\end{equation}
+        \begin{equation}
+        	\ln[G(Y)] = p_{1} \ln [F_{1}(X_{1})] + p_{2} \ln [F_{2}(X_{2})] + \ldots + p_{k} \ln [F_{k}(X_{k})]
+        \end{equation}
+        \begin{equation}
+        \ln[G(Y)] = p_{1} \ln [F_{1}(X_{1})] + p_{2} \ln [F_{2}(X_{2})] + \ldots + p_{k} \ln [F_{k}(X_{k})] + u_{t}
+        \end{equation}
+        \normalsize
+       	\item \textbf{Estimation of Weighted Distribution Factors \(p_{i}\):} it's necessary to estimate the values of \(p_{i}\) in an uncertain environment, typically through regression analysis.
+       	\item \textbf{Directional Regression:} the idea is to use directional regression for data generation, particularly when only standardized modes of the asset and indexes are known.
+       	\item \textbf{Standardized Variables:} the approach involves considering standardized variables in the interval \([0,1]\) and using the modes of these variables to generate data points.
+       	\item \textbf{Perpendicular Line and Vector Calculations:} the method proposes creating a line perpendicular to a plane defined by the most likely values (modes) and passing through the origin. This involves vectorial calculations.
+       	\begin{equation}
+       		\frac{Y}{M_{1}M_{2}} = \frac{X_{1}}{M_{0}M_{2}} = \frac{X_{2}}{M_{0}M_{1}} = \lambda
+       	\end{equation}
+        \begin{equation}
+           \begin{cases}
+           	    Y = \lambda M_{1} M_{2} \\
+               	X_{1} = \lambda M_{0} M_{2} \\
+              	X_{2} = \lambda M_{0} M_{1}
+           \end{cases}
+        \end{equation}
+       	\item \textbf{Data Generation for Multiple Indexes:} the methodology extends to multiple indexes, using a specific formula to generate data points for each index.
+        	\footnotesize
+       	\begin{equation}
+       		M(j) = 
+       		\begin{cases}
+       			\left(\prod_{i=0}^{j-1} M_{i} \right) \left(\prod_{i=j+1}^{k} M_{i} \right) = M_{0}M_{1} \times \ldots \times M_{j-1} M_{j+1}, \times M_{k} \quad 1 \leq j \leq k \\
+       			\prod_{i=j+1}^{k} M_{i} = M_{1} \times \ldots \times M_{k} \quad j=0
+       		\end{cases}
+       	\end{equation}
+        \normalsize
+        Thus, the line perpendicular to the plane described by the most likely values and passing through the origin can be expressed by
+        \begin{equation}
+        	\frac{Y}{M(0)} = \frac{X_{1}}{M(1)} = \frac{X_{2}}{M(2)} = \ldots = \frac{X_{k}}{M(k)} = \lambda
+        \end{equation}
+       	\item \textbf{Estimation of \(p_{i}\):} once the dataset is generated, the next step is to estimate the expression to obtain \(p_{i}\), ensuring they are greater than zero.
+       	\item \textbf{Limitation of Ordinary Least Squares (OLS):} While OLS is widely used, it doesn't guarantee non-negative weights (\(p_{i}\)), which are essential for the VMTCDF.
+       	\item \textbf{Use of NNLS (Non-Negative Least Squares):} the NNLS approach, specifically the Lawson-Hanson algorithm, is proposed as it guarantees that the estimated weights will be non-negative.
+       	\item \textbf{Avoiding Null Estimations:} There's a concern about NNLS providing null estimations, which could eliminate important explanatory variables. To avoid this, a specific condition is implemented to ensure \(p_{i} > 0\).
+       	\item \textbf{Weighted Cumulative Distribution Function (WCDF):} Using the estimated weights \(p_{i}\), the WCDF is computed as per expression
+       	\begin{equation}
+       		F_{\hat{p}}(X_{1}, X_{2}, \ldots, X_{k}) = [F_{1}(X_{1})]^{\hat{p_{1}}} \times [F_{2}(X_{2})]^{\hat{p_{2}}} \times \ldots \times [F_{k}(X_{k})]^{\hat{p_{k}}}
+       	\end{equation}
+       \item \textbf{Reflection of the Asset through the Joint CDF:} the value of the asset is derived from the relationship between the indexes and the asset, using the inverse of the asset's cumulative distribution function (CDF).
+       \item \textbf{Use of Triangular Distribution:} the method assumes a triangular distribution for values. The inverse of the triangular distribution's CDF is provided, which will be essential for calculating the market value of the asset. The inverse of the CDF is given by
+       \begin{equation}
+           F^{-1}(z) =
+           \begin{cases}
+               \sqrt{z M}, \quad 0 \leq \zeta M \\
+               1 - \sqrt{(1 - z)(1 - M)}, \quad M \leq z \leq 1
+           \end{cases}
+       \end{equation}       
+       \item \textbf{Final Market Value Estimation:} after obtaining the value through the inverse CDF, the final step involves undoing the standardization to estimate the market value of the asset for specific values of the indexes.
+    \end{itemize}
+\end{frame}
+
+\section{Brief code review}
+
+\begin{frame}{Introduction to AssetWise: A Valuation Tool Under Uncertainty}
+	AssetWise implements cutting-edge methods for valuing assets under uncertainty, 
+	specifically tailored for agricultural farms. 
+	\begin{itemize}
+		\item Based on the research paper "A generalized method for valuing agricultural farms under uncertainty".
+		\item Incorporates an "expert mode" allowing appraisers to input their judgments on various parameters.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Core Libraries and Configuration}
+	AssetWise leverages several powerful Python libraries and features a robust configuration setup.
+	\begin{itemize}
+		\item Main Libraries: \texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{matplotlib}, \texttt{sklearn}, \texttt{tkinter}.
+		\item Detailed logging setup aids in tracking application flow and debugging.
+		\item Custom logging levels for \texttt{matplotlib} and \texttt{scipy} to manage output verbosity.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Data Processing and Transformation}
+	AssetWise includes sophisticated data handling and transformation features.
+	\begin{itemize}
+		\item \texttt{load\_data} function for efficient data loading from Excel files.
+		\item \texttt{standardize\_values} normalizes data to a 0-1 scale, enhancing analysis accuracy.
+		\item Data is prepared through various transformations for optimal processing and analysis.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation Approach in AssetWise}
+	The tool uses advanced statistical methods for asset value estimation.
+	\begin{itemize}
+		\item Implements CDF calculations for triangular and beta distributions.
+		\item The \texttt{estimate\_value\_expert\_mode} function combines CDFs and NNLS regression for accurate asset valuation.
+		\item Empowers appraisers with data-driven insights while considering expert judgment.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{User Interface and Interaction}
+	AssetWise features an intuitive GUI, making it accessible for all appraisers.
+	\begin{itemize}
+		\item Easy file selection and script execution via a user-friendly interface.
+		\item Efficient interaction process, ensuring a smooth user experience.
+		\item Includes an informative "About" section, offering insights into AssetWise's capabilities and background.
+	\end{itemize}
+\end{frame}
+
+
+\section{Demonstration}
+\begin{frame}[allowframebreaks]{How to Use AssetWise: A Step-by-Step Guide}
+	Follow these simple steps to effectively use AssetWise for asset valuation:
+	\begin{enumerate}
+		\item Prepare your data file using the provided template.
+		\item The file may include any number of columns.
+		\item Retain the column name \texttt{'Value'} - it's essential for the tool to identify asset values.
+		\item Feel free to name other columns as per your data requirements.
+		\item Maintain the order of rows as given in the template.
+		\item Launch AssetWise.
+		\item Load your data file through the application's interface.
+		\item Click 'Run' to start the valuation process.
+		\item AssetWise will generate a new file with results and visualizations in the same folder as the input file.
+	\end{enumerate}
+	This straightforward process ensures a smooth experience, allowing appraisers to focus on analysis rather than data preparation complexities.
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{References}
+	\printbibliography
+\end{frame}
+
+\end{document}
